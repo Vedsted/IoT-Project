@@ -9,17 +9,13 @@ def on_message(client, userdata, message):
     print("message retain flag=",message.retain)
 ########################################
 
-
 broker_address="localhost"
-usr_pw = ('Test2', '1234')
-
 
 print("creating new instance")
 client = mqtt.Client("P1") #create new instance
 client.on_message=on_message #attach function to callback
 
 print("connecting to broker")
-client.username_pw_set(usr_pw[0], usr_pw[1])
 client.connect(broker_address) #connect to broker
 client.loop_start() #start the loop
 

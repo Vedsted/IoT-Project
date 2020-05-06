@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  broker:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: always
+    ports:
+    - 1883:1883
+    - 9001:9001
+    volumes:
+    - ../broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    - ../broker/mosquitto.passwd:/mosquitto/config/mosquitto.passwd
+    - broker_data:/mosquitto/data
+    - broker_logs:/mosquitto/log
+  storagesystem:
+    image: vedsted/storage_system:latest
+    container_name: storage-system
+    restart: always
+    volumes:
+    - ../storageSystem/config.conf:/config.conf  
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    ports:
+    - 3306:3306
+    - 33060:33060
+    env_file: ../mariadb/mariadb.env
+    volumes:
+    - mariadb_data:/var/lib/mysql
+    - ../mariadb/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+
+volumes:
+  broker_data:
+  broker_logs:
+  mariadb_data:
