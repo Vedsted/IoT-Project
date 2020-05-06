@@ -1,6 +1,8 @@
 # Data Storage System
 The data storage system is resposible for recieving data messages from the MQTT broker and store them in the MariaDB Database.
 
+Found on Docker Hub [here](https://hub.docker.com/r/vedsted/storage_system)
+
 ## Running the image
 When running the image, remember to volume a `.conf` file to the location: `/app/config.conf`.  
 The file has the following format:
