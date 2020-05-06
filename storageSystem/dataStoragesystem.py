@@ -75,16 +75,6 @@ db = connect_to_db()
 cursor = db.cursor()
 broker = connect_to_broker()
 
-
-# # End program when input 'exit' is received
-# print('Enter \'exit\' to close the service!')
 while True:
   print('Storage system ready!')
   time.sleep(60)
-#     x = input()
-#     if x == 'exit':
-#       # Close connections
-#       cursor.close()
-#       db.close()
-#       broker.loop_stop()
-#       break
