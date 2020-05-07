@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light Manager</title>
+</head>
+<body>
+    <h1>IoT Light Manager</h1>
+    <h2 id="msg"></h2>
+    <h3>Input Controller and Group</h3>
+    <div>
+        <p>Controller:</p>
+        <input type="text" id="inpController" placeholder="Controller name"/>
+    </div>
+    <div>
+        <p>Group:</p>
+        <input type="text" id="inpGroup" placeholder="Group name"/>
+    </div>
+    <h3>Set Setpoint:</h3>
+    <div>
+        <input type="text" id="inpSetpoint" placeholder="500"/>
+        <button id="btnSetpoint">Enter</button>
+    </div>
+    <div>
+        <h3>Data Vizualisation:</h3>
+        <div>
+            <p>From:</p>
+            <input type="date" id="inpStart" value="2020-05-07">
+        </div>
+        <div>
+            <p>To:</p>
+            <input type="date" id="inpEnd" value="2020-05-07">
+        </div>
+        <button id="btnPlot">Create</button>
+    </div>
+    <div>
+        <canvas id="myChart" width="0" height="0"></canvas>
+    </div>
+
+    <!-- Lib for creating plots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <!--
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css">
+    -->
+
+    <!-- js files -->
+    <script src="./public/index.js"></script>
+
+    <style>
+        #msg {
+            color: red;
+        }
+        canvas {
+            width: 1vw;
+            height: 400px;
+        }
+    </style>
+</body>
+</html>
