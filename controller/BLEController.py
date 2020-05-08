@@ -36,7 +36,7 @@ class BLEController:
                 if self._peripheral.waitForNotifications(1.0):  # Calls the delegate if true
                     # Delegate was called
                     continue
-                print('Listening...')
+                print('BLEController.listen() -> Listening...')
 
     def listen_async(self):
         #raise Exception("Not Implemented")
@@ -47,7 +47,7 @@ class BLEController:
 
         # BLE characteristic expects a byte array
         value_bytes = bytes(value)
-        print("Adjusting light source: {}".format(value_bytes))
+        print("BLEController.adjust_light_source -> {}".format(value_bytes))
 
         handle = 49 # The handle value has to be found using e.g. print_services(), bluez, or similar
         self._peripheral.writeCharacteristic(handle, value_bytes)

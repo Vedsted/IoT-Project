@@ -20,9 +20,9 @@ settings = {
     'controller_id': 'controller1',
     'group_id': 'group1',
     'lux': (float('-inf'), float('-inf')),
-    'setpoint': 2000, # initial setpoint
-    'setpoint_error' : 5, # accept a certain error
-    'light_red': 0,
+    'setpoint': 200, # Initial setpoint. This is the lux level we aim for
+    'setpoint_error' : 20, # accept a certain error
+    'light_red': 255,
     'light_green': 255,
     'light_blue': 255
 }
@@ -32,7 +32,7 @@ settings = {
 ############################
 current_state = {
     'lux': (float('-inf'), float('-inf')),
-    'setpoint': 2000,
+    'setpoint': 200,
     'light_red': 0,
     'light_green': 255,
     'light_blue': 255
@@ -42,11 +42,11 @@ current_state = {
 # MQTT
 ############################
 def on_connect(client, userdata, flags, rc):
-    print("Connected to MQTT with result code " + str(rc))
+    print("on_connect() -> Connected to MQTT with result code " + str(rc))
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    print("on_message() -> " + msg.topic + " " + str(msg.payload))
 
 def mqtt_publish(host, port, keep_alive, topic):
     # connect to broker
@@ -75,13 +75,19 @@ def mqtt_publish(host, port, keep_alive, topic):
                                     # QoS0 -> deliver no more than once without receipt
                                     # QoS1 -> is delivered as often as necessary until the subscriber has confirmed receipt
                                     # QoS2 -> ensures that the subscriber receives the message exactly once
+    print("mqtt_publish() -> Published MQTT message: {}".format(payload))
+
+    client.disconnect()
 
 
 def on_msg(client, userdata, msg):
-    print("Received MQTT message..")
+    print("on_msg() -> Received MQTT message..")
 
-    #payload = json.loads(msg.payload)
-    #setpoint = payload['setpoint']
+    payload = json.loads(msg.payload)
+    setpoint = payload['setpoint']
+
+    current_state['setpoint'] = setpoint
+    print("on_msg() -> Updated current state: {}".format(setpoint))
 
 # Wrapper function for returning the expected callback given the topic
 def subscribe(topic):
@@ -98,7 +104,7 @@ def subscribe(topic):
 def mqtt_subscribe_thread(host, port, keep_alive):
     # connect to broker
     client = mqtt.Client()
-    client.on_connect = subscribe("filipsblue/controllers/" + settings['controller_id'] + "/setting")
+    client.on_connect = subscribe('remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/setpoint')
     client.on_message = on_msg
     client.connect(host, port, keep_alive)
     client.loop_forever()
@@ -117,21 +123,21 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
         # The specific handle has to be found using service/characteristic discovery in bluez or similar tool
         if cHandle == 42:
             decoded_data = data.decode('utf-8')
-            print(decoded_data)
+            print("AmbientSensorNotificationHandler.handleNotification() -> received lux values: " + decoded_data)
             # Update the current state with the lux tuple
             lux = tuple(map(int, decoded_data.replace('(', '').replace(')', '').split(', '))) # cast from string '(int, int)' -> tuple 
             current_state['lux'] = lux
 
             # publish current state through MQTT
-            topic = 'remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/' + '/data'
+            topic = 'remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/data'
             mqtt_publish(settings['broker_address'], settings['broker_port'], settings['broker_keep_alive'], topic)
 
             adjust_light_source()
 
 f = BLEController(AmbientSensorNotificationHandler(params=None))
 f.connect(settings['ambient_sensor_ble_mac']) # Establish the connection to the ambient sensor
-current_rgb = (settings['light_red'], settings['light_green'], settings['light_blue'])
-f.adjust_light_source(current_rgb)
+initial_rgb = (settings['light_red'], settings['light_green'], settings['light_blue'])
+f.adjust_light_source(initial_rgb)
 
 def AmbientSensorThread():
     f.listen() # Blocking call
@@ -141,8 +147,8 @@ def AmbientSensorThread():
 ############################
 def block():
     while True:
-        print("block() thread")
-        time.sleep(1)
+        print("block()")
+        time.sleep(5)
 
 def adjust_light_source():
     # TODO: Find a better way to adjust light source
@@ -154,19 +160,19 @@ def adjust_light_source():
 
     if difference > settings['setpoint_error']:
         # Adjust down
-        new_rgb = util.get_rgb_values(current_rgb, 90)
+        new_rgb = util.get_rgb_values(current_rgb, 95)
         f.adjust_light_source(new_rgb)
         
     elif difference < settings['setpoint_error']:
         # Adjust up
-        new_rgb = util.get_rgb_values(current_rgb, 110)
+        new_rgb = util.get_rgb_values(current_rgb, 105)
         f.adjust_light_source(new_rgb)
     else:
         # Don't adjust
         pass
 
     # Update state of the light source
-    print(new_rgb)
+    print("adjust_light_source() -> " + str(new_rgb))
     if new_rgb != None:
         current_state['light_red'] = new_rgb[0]
         current_state['light_green'] = new_rgb[1]

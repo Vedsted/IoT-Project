@@ -72,8 +72,14 @@ def BLEServer():
         # Can take an integer, a string or a bytes object. Can only be called if there clients are connected?
         # Should trigger notification if a client has registered for notifications
         if isConnected:
-            ambient_sensor_chr.value(str(lux_sample)) # Send the notification over BLE
-            print("Updated lux value: " + str(lux_sample))
+            try:
+                ambient_sensor_chr.value(str(lux_sample)) # Send the notification over BLE
+                print("Emitted lux value: " + str(lux_sample))
+            except:
+                # Some error happened during notification.
+                # Most likely no client is connected to receive notifications.
+                # Disconnect bluetooth communication.
+                bluetooth.disconnect_client()
 
     threshold = 2 # The threshold of when the ambient sensor should emit new lux values
     ambient_sensor = AmbientSensor(threshold=threshold, callback_on_emit=ble_ambient_sensor_callback)
