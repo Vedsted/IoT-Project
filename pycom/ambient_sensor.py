@@ -8,11 +8,11 @@ class AmbientSensor:
         # Initialize the sensor
         integration_time = LTR329ALS01.ALS_INT_100
         measurement_rate = LTR329ALS01.ALS_RATE_500 
-        gain = LTR329ALS01.ALS_GAIN_1X
+        gain = LTR329ALS01.ALS_GAIN_48X
         self.__lightsensor = LTR329ALS01(integration=integration_time, rate=measurement_rate, gain=gain)
 
         # Set default sample rate
-        self.__sample_rate = 1
+        self.__sample_rate = 0.2
 
         # Threshold for when a sample should be emitted
         self.__threshold = threshold
