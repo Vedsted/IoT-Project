@@ -76,7 +76,7 @@ app.post('/api/setsetpoint', function (req, res) {
 
     let o = {controller: controller,group: group,setpoint: setpoint};
 
-    let topic = 'remote/setpoint/' + controller + '/' + group;
+    let topic = 'remote/' + controller + '/' + group + '/setpoint';
     client.publish(topic, JSON.stringify(o))
 
     let msgSetpoint = {msg: 'Setpoint sent successfully!'};
