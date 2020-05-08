@@ -30,6 +30,15 @@ services:
     volumes:
     - mariadb_data:/var/lib/mysql
     - ../mariadb/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+  web:
+    image: vedsted/iot-api:latest
+    container_name: iot-api
+    restart: always
+    ports: 
+      - 3000:3000
+    volumes: 
+      - ../web-api/config.js:/usr/src/app/config.js
+
 
 volumes:
   broker_data:
