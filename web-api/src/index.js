@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path')
 const mysql = require('mysql')
 const bodyParser = require('body-parser');
-var mqtt = require('mqtt')
+const mqtt = require('mqtt')
+const config = require('../config')
 
 /*****************************
  *  Configure Express server *
@@ -17,13 +18,10 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
  *******************************/
 var con = null;
 sqlOptions = {
-    host: "localhost",
-    user: "filip",
-    password: "Chcla15Jonso16",
-    database: "FilipsBlue",
-    connectionLimit: 15,
-    queueLimit: 30,
-    acquireTimeout: 1000000
+    host: config.db.host,
+    user: config.db.user,
+    password: config.db.pass,
+    database: config.db.database,
 };
 
 function connectToDB(){
@@ -37,7 +35,9 @@ function connectToDB(){
 /************************************
  * Set up connection to MQTT Broker *
  ************************************/
-var client  = mqtt.connect('mqtt://localhost:1883')
+let host = config.mqtt.host;
+let port = config.mqtt.port;
+var client  = mqtt.connect('mqtt://'+host+':'+port)
 client.on('connect', ()=> console.log('Broker connection established!'))
 
 /****************************
@@ -102,8 +102,6 @@ app.post('/api/data', function (req, res) {
         con.end();
     });
 });
-
-
 
 
 /**

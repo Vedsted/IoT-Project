@@ -1,5 +1,12 @@
 var ctx = document.getElementById('myChart')//.getContext('2d');
-var server = 'http://localhost:3000/'
+
+function getServerAddress(){
+    var url = window.location.href
+    var arr = url.split("/");
+    return arr[0] + "//" + arr[2] + '/'
+}
+
+var server = getServerAddress();
 
 /**
  * Set setpoint.
@@ -53,6 +60,8 @@ document.getElementById('btnPlot').addEventListener('click', event => {
         let lux1 = data.map(e => e.lux1);
         let lux2 = data.map(e => e.lux2);
         let setpoints = data.map(e => e.setpoint);
+
+        document.getElementById('msg').innerText = "Data received from server.\nNumber of data points: " + labels.length
 
         var myChart = new Chart(ctx, {
             type: 'line',
