@@ -3,6 +3,7 @@ import ubinascii
 import time
 import _thread
 from light_source import set_LED_rgb
+from ambient_sensor import AmbientSensor
 from network import Bluetooth
 
 # Code from:
@@ -44,54 +45,66 @@ def BLEServer():
     ###########################
     # BLE Ambient Sensor Service
     ###########################
-    ambient_sensor_service = bluetooth.service(uuid=b'2222222222222222', isprimary=True)
+    ambient_sensor_service = bluetooth.service(uuid=b'2222222222222220', isprimary=True, nbr_chars=2) # nbr_chars indicates the number of characteristics of this service
     #set up service characteristic
-    ambient_sensor_chr = ambient_sensor_service.characteristic(uuid=b'3333333333333333', properties=Bluetooth.PROP_NOTIFY, value='1234')
+    ambient_sensor_chr = ambient_sensor_service.characteristic(uuid=b'2222222222222221', properties=Bluetooth.PROP_NOTIFY, value='NA')
+    ambient_sensor_sample_rate_chr = ambient_sensor_service.characteristic(uuid=b'2222222222222222', properties=Bluetooth.PROP_WRITE, value='NA')
+
+    def ambient_sensor_sample_rate_cb_handler(chr):
+        events = chr.events()
+        if  events & Bluetooth.CHAR_WRITE_EVENT:
+            print("ambient_sensor_sample_rate_cb_handler : Raw value: {}".format(chr.value()))
+
+            try:
+                sample_rate = float(chr.value())
+                ambient_sensor.set_sample_rate(sample_rate)
+                print("Updated ambient sampling rate: {}".format(sample_rate))
+            except:
+                print("ambient_sensor_sample_rate_cb_handler : Invalid value. Expected type float.")
+                pass
+            
+    ambient_sensor_sample_rate_chr.callback(trigger=Bluetooth.CHAR_WRITE_EVENT, handler=ambient_sensor_sample_rate_cb_handler)
+
     ambient_sensor_service.start()
+
+    def ble_ambient_sensor_callback(lux_sample):
+        print("Should we notify? : " + str(isConnected))
+        # Can take an integer, a string or a bytes object. Can only be called if there clients are connected?
+        # Should trigger notification if a client has registered for notifications
+        if isConnected:
+            ambient_sensor_chr.value(str(lux_sample)) # Send the notification over BLE
+            print("Updated lux value: " + str(lux_sample))
+
+    threshold = 2 # The threshold of when the ambient sensor should emit new lux values
+    ambient_sensor = AmbientSensor(threshold=threshold, callback_on_emit=ble_ambient_sensor_callback)
+    _thread.start_new_thread(ambient_sensor.start_sampling, ()) # Start sampling the ambient sensor
 
     ###########################
     # BLE Light Source Service
     ###########################
-    light_source_service = bluetooth.service(uuid=b'4444444444444444', isprimary=True)
+    light_source_service = bluetooth.service(uuid=b'3333333333333330', isprimary=True)
     #set up service characteristic
-    light_source_chr = light_source_service.characteristic(uuid=b'5555555555555555', properties=Bluetooth.PROP_WRITE, value='(255,255,255)')
+    light_source_chr = light_source_service.characteristic(uuid=b'3333333333333331', properties=Bluetooth.PROP_WRITE, value='(255,255,255)')
 
     def light_source_chr_cb_handler(chr):
         events = chr.events()
         if  events & Bluetooth.CHAR_WRITE_EVENT:
             colorsArray = chr.value()
-            print("Raw value: {}".format(chr.value()))
-            red = colorsArray[0]
-            green = colorsArray[1]
-            blue = colorsArray[2]
-            print("Set LED with value = {} {} {}".format(red, green, blue))
-            set_LED_rgb(red, green, blue)
+
+            try:
+                print("light_source_chr_cb_handler : Raw value: {}".format(chr.value()))
+                red = colorsArray[0]
+                green = colorsArray[1]
+                blue = colorsArray[2]
+                print("Set LED with value = {} {} {}".format(red, green, blue))
+                set_LED_rgb(red, green, blue)
+            except:
+                print("light_source_chr_cb_handler : Invalid value. Expected byte array of length 3.")
+                pass
             
 
     light_source_chr.callback(trigger=Bluetooth.CHAR_WRITE_EVENT, handler=light_source_chr_cb_handler)
-
     light_source_service.start()
-
-
-    def ble_ambient_sensor_loop():
-        # Server loop
-        counter = 0
-        while True:
-            print("Should we notify? : " + str(isConnected))
-            lux = (counter,counter*2)
-            # Can take an integer, a string or a bytes object. Can only be called if there clients are connected?
-            # Should trigger notification if a client has registered for notifications
-            if isConnected:
-                ambient_sensor_chr.value(str(lux))
-                print("Updated lux value: " + str(lux))
-            
-            counter = counter + 1
-            if counter > 10000:
-                counter = 0
-            time.sleep(2)
-
-
-    _thread.start_new_thread(ble_ambient_sensor_loop, ())
     
 
 # Start the BLE server
