@@ -123,7 +123,10 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
         DefaultDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
-        # The specific handle has to be found using service/characteristic discovery in bdifferencealues: " + decoded_data)
+        # The specific handle has to be found using service/characteristic discovery in bluez or similar tool
+        if cHandle == 42:
+            decoded_data = data.decode('utf-8')
+            print("AmbientSensorNotificationHandler.handleNotification() -> received lux values: " + decoded_data)
             # Update the current state with the lux tuple
             lux = tuple(map(int, decoded_data.replace('(', '').replace(')', '').split(', '))) # cast from string '(int, int)' -> tuple 
             current_state['lux'] = lux
