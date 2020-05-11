@@ -24,7 +24,9 @@ settings = {
     'setpoint_error' : 20, # accept a certain error
     'light_red': 255,
     'light_green': 255,
-    'light_blue': 255
+    'light_blue': 255,
+    'intensity_max': 25,
+    'intensity_min': 0
 }
 
 ############################
@@ -33,9 +35,10 @@ settings = {
 current_state = {
     'lux': (float('-inf'), float('-inf')),
     'setpoint': 200,
-    'light_red': 0,
+    'light_red': 255,
     'light_green': 255,
-    'light_blue': 255
+    'light_blue': 255,
+    'intensity': 0
 }
 
 ############################
@@ -120,10 +123,7 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
         DefaultDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
-        # The specific handle has to be found using service/characteristic discovery in bluez or similar tool
-        if cHandle == 42:
-            decoded_data = data.decode('utf-8')
-            print("AmbientSensorNotificationHandler.handleNotification() -> received lux values: " + decoded_data)
+        # The specific handle has to be found using service/characteristic discovery in bdifferencealues: " + decoded_data)
             # Update the current state with the lux tuple
             lux = tuple(map(int, decoded_data.replace('(', '').replace(')', '').split(', '))) # cast from string '(int, int)' -> tuple 
             current_state['lux'] = lux
@@ -150,6 +150,7 @@ def block():
         print("block()")
         time.sleep(5)
 
+
 def adjust_light_source():
     # TODO: Find a better way to adjust light source
     lux_avg = (current_state['lux'][0] + current_state['lux'][1])/2
@@ -158,15 +159,24 @@ def adjust_light_source():
 
     new_rgb = None
 
+    
+
     if difference > settings['setpoint_error']:
         # Adjust down
-        new_rgb = util.get_rgb_values(current_rgb, 95)
-        f.adjust_light_source(new_rgb)
+        #new_rgb = util.get_rgb_values(current_rgb, 95)
+        if current_state['intensity'] > settings['intensity_min']:
+            current_state['intensity'] = current_state['intensity'] -1
+            new_rgb = util.map_intensity_to_rgb(current_state['intensity'])
+            f.adjust_light_source(new_rgb)
+        
         
     elif difference < settings['setpoint_error']:
         # Adjust up
-        new_rgb = util.get_rgb_values(current_rgb, 105)
-        f.adjust_light_source(new_rgb)
+        #new_rgb = util.get_rgb_values(current_rgb, 105)
+        if current_state['intensity'] < settings['intensity_max']:
+            current_state['intensity'] = current_state['intensity'] +1
+            new_rgb = util.map_intensity_to_rgb(current_state['intensity'])
+            f.adjust_light_source(new_rgb)
     else:
         # Don't adjust
         pass

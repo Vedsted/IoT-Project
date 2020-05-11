@@ -17,3 +17,12 @@ def get_rgb_values(rgb, intensity):
         b = downscale(max(t), b)
         t = (r, g, b)
     return t
+
+def map_intensity_to_rgb(intensity):
+    if intensity < 0:
+        return (0,0,0)
+    elif intensity > 25:
+        return (255,255,255)
+
+    i = 10 * intensity
+    return (i,i,i)
