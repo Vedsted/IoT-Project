@@ -18,11 +18,11 @@ def get_rgb_values(rgb, intensity):
         t = (r, g, b)
     return t
 
-def map_intensity_to_rgb(intensity):
+def map_intensity_to_rgb(intensity):    
     if intensity < 0:
         return (0,0,0)
-    elif intensity > 25:
+    elif intensity > 51:
         return (255,255,255)
 
-    i = 10 * intensity
+    i = 5 * intensity
     return (i,i,i)

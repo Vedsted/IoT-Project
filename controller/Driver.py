@@ -20,12 +20,12 @@ settings = {
     'controller_id': 'controller1',
     'group_id': 'group1',
     'lux': (float('-inf'), float('-inf')),
-    'setpoint': 200, # Initial setpoint. This is the lux level we aim for
-    'setpoint_error' : 20, # accept a certain error
+    'setpoint': 60, # Initial setpoint. This is the lux level we aim for
+    'setpoint_error' : 5, # accept a certain error
     'light_red': 255,
     'light_green': 255,
     'light_blue': 255,
-    'intensity_max': 25,
+    'intensity_max': 51,
     'intensity_min': 0
 }
 
@@ -34,7 +34,7 @@ settings = {
 ############################
 current_state = {
     'lux': (float('-inf'), float('-inf')),
-    'setpoint': 200,
+    'setpoint': 50,
     'light_red': 255,
     'light_green': 255,
     'light_blue': 255,
