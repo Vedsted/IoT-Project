@@ -54,7 +54,8 @@ def mqtt_publish(host, port, keep_alive, topic):
         u"setpoint_error": current_state['setpoint_error'],
         u"light_red": current_state['light_red'],
         u"light_green": current_state['light_green'],
-        u"light_blue": current_state['light_blue']
+        u"light_blue": current_state['light_blue'],
+        u"message_count": util.increment_mqtt_message_send_count()
     })
 
     # Publish to mylaptop/uptime
