@@ -13,15 +13,16 @@ from config import settings
 ############################
 initial_rgb = (settings['light_red'], settings['light_green'], settings['light_blue'])
 current_state = {
-    'lux': (float('-inf'), float('-inf')),
-    'setpoint': 50,
+    'lux': settings['lux'],
+    'setpoint': settings['setpoint'],
+    'setpoint_error': settings['setpoint_error'],
     'light_red': initial_rgb[0],
     'light_green': initial_rgb[1],
     'light_blue': initial_rgb[2],
     'ref_red': initial_rgb[0], # ref values are for adjusting intensity accordingly to the color 
     'ref_green': initial_rgb[1],
     'ref_blue': initial_rgb[2],
-    'intensity': 0
+    'intensity': settings['intensity_max']
 }
 
 base_mqtt_topic = 'remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/'
@@ -78,6 +79,8 @@ def on_msg(client, userdata, msg):
         current_state['ref_blue'] = payload['blue']
         new_rgb = util.map_intensity_to_rgb(current_state)
         f.adjust_light_source(new_rgb)
+    elif msg.topic == base_mqtt_topic+'setpoint_error':
+        current_state['setpoint_error'] = payload['setpoint_error']
 
     print("on_msg() -> Updated current state: {}".format(payload))
 
@@ -96,7 +99,7 @@ def subscribe(topic):
 def mqtt_subscribe_thread(host, port, keep_alive):
     # connect to broker
     client = mqtt.Client()
-    client.on_connect = subscribe([base_mqtt_topic + 'rgb', base_mqtt_topic + 'setpoint'])
+    client.on_connect = subscribe([base_mqtt_topic + 'rgb', base_mqtt_topic + 'setpoint', base_mqtt_topic + 'setpoint_error'])
     client.on_message = on_msg
     client.connect(host, port, keep_alive)
     client.loop_forever()
@@ -153,7 +156,7 @@ def adjust_light_source():
 
     
 
-    if difference > settings['setpoint_error']:
+    if difference > current_state['setpoint_error']:
         # Adjust down
         #new_rgb = util.get_rgb_values(current_rgb, 95)
         if current_state['intensity'] > settings['intensity_min']:
@@ -162,7 +165,7 @@ def adjust_light_source():
             f.adjust_light_source(new_rgb)
         
         
-    elif difference < settings['setpoint_error']:
+    elif difference < current_state['setpoint_error']:
         # Adjust up
         #new_rgb = util.get_rgb_values(current_rgb, 105)
         if current_state['intensity'] < settings['intensity_max']:
