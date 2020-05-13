@@ -99,7 +99,11 @@ def subscribe(topic):
 def mqtt_subscribe_thread(host, port, keep_alive):
     # connect to broker
     client = mqtt.Client()
-    client.on_connect = subscribe([base_mqtt_topic + 'rgb', base_mqtt_topic + 'setpoint', base_mqtt_topic + 'setpoint_error'])
+    client.on_connect = subscribe([
+        (base_mqtt_topic + 'rgb', 0), 
+        (base_mqtt_topic + 'setpoint', 0), 
+        (base_mqtt_topic + 'setpoint_error', 0)
+    ])
     client.on_message = on_msg
     client.connect(host, port, keep_alive)
     client.loop_forever()
