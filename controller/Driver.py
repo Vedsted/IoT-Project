@@ -20,15 +20,14 @@ current_state = {
     'intensity': 0
 }
 
+base_mqtt_topic = 'remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/'
+
 ############################
 # MQTT
 ############################
 def on_connect(client, userdata, flags, rc):
     print("on_connect() -> Connected to MQTT with result code " + str(rc))
 
-# The callback for when a PUBLISH message is received from the server.
-def on_message(client, userdata, msg):
-    print("on_message() -> " + msg.topic + " " + str(msg.payload))
 
 def mqtt_publish(host, port, keep_alive, topic):
     # connect to broker
@@ -64,12 +63,19 @@ def mqtt_publish(host, port, keep_alive, topic):
 
 def on_msg(client, userdata, msg):
     print("on_msg() -> Received MQTT message..")
-
     payload = json.loads(msg.payload)
-    setpoint = payload['setpoint']
 
-    current_state['setpoint'] = setpoint
-    print("on_msg() -> Updated current state: {}".format(setpoint))
+    if msg.topic == base_mqtt_topic+'setpoint':
+        setpoint = payload['setpoint']
+        current_state['setpoint'] = setpoint
+    elif msg.topic == base_mqtt_topic+'rgb':
+        current_state['light_red'] = payload['red']
+        current_state['light_green'] = payload['green']
+        current_state['light_blue'] = payload['blue']
+        new_rgb = util.map_intensity_to_rgb(current_state)
+        f.adjust_light_source(new_rgb)
+
+    print("on_msg() -> Updated current state: {}".format(payload))
 
 # Wrapper function for returning the expected callback given the topic
 def subscribe(topic):
@@ -86,7 +92,7 @@ def subscribe(topic):
 def mqtt_subscribe_thread(host, port, keep_alive):
     # connect to broker
     client = mqtt.Client()
-    client.on_connect = subscribe('remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/setpoint')
+    client.on_connect = subscribe(base_mqtt_topic + '+') # (+) is wildcard
     client.on_message = on_msg
     client.connect(host, port, keep_alive)
     client.loop_forever()
@@ -111,7 +117,7 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
             current_state['lux'] = lux
 
             # publish current state through MQTT
-            topic = 'remote/' + settings['controller_id'] + '/' + settings['group_id'] + '/data'
+            topic = base_mqtt_topic + 'data'
             mqtt_publish(settings['broker_address'], settings['broker_port'], settings['broker_keep_alive'], topic)
 
             adjust_light_source()
@@ -148,7 +154,7 @@ def adjust_light_source():
         #new_rgb = util.get_rgb_values(current_rgb, 95)
         if current_state['intensity'] > settings['intensity_min']:
             current_state['intensity'] = current_state['intensity'] -1
-            new_rgb = util.map_intensity_to_rgb(current_state['intensity'])
+            new_rgb = util.map_intensity_to_rgb(current_state)
             f.adjust_light_source(new_rgb)
         
         
@@ -157,7 +163,7 @@ def adjust_light_source():
         #new_rgb = util.get_rgb_values(current_rgb, 105)
         if current_state['intensity'] < settings['intensity_max']:
             current_state['intensity'] = current_state['intensity'] +1
-            new_rgb = util.map_intensity_to_rgb(current_state['intensity'])
+            new_rgb = util.map_intensity_to_rgb(current_state)
             f.adjust_light_source(new_rgb)
     else:
         # Don't adjust

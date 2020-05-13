@@ -1,28 +1,21 @@
 import math
+from config import settings
 
-def get_rgb_values(rgb, intensity):
-# Helper function that returns a tuple with new rgb values depending on the intencity
-    def new_channel_value(channel, percentage):
-        return  int(math.ceil(channel / 100 * percentage))
-    def downscale(greatest_channel_value, channel):
-        return int(math.ceil((255/greatest_channel_value * channel)))
-    r = new_channel_value(rgb[0], intensity)
-    g = new_channel_value(rgb[1], intensity)
-    b = new_channel_value(rgb[2], intensity)
-    t = (r, g, b)
-    if max(t) > 255: # Downscale if any channel is greater than 255
-        max(t)
-        r = downscale(max(t), r)
-        g = downscale(max(t), g)
-        b = downscale(max(t), b)
-        t = (r, g, b)
-    return t
+intensity_max = settings['intensity_max']
+intensity_min = settings['intensity_min']
 
-def map_intensity_to_rgb(intensity):    
-    if intensity < 0:
+def map_intensity_to_rgb(state):    
+    intensity = state['intensity']
+    
+    if intensity < intensity_min:
+        print('Error: Intensity is below minimum!')
         return (0,0,0)
-    elif intensity > 51:
+    elif intensity > intensity_max:
+        print('Error: Intensity is above maximum!')
         return (255,255,255)
+   
+    r = math.floor((state['light_red']/intensity_max)*intensity)
+    g = math.floor((state['light_green']/intensity_max)*intensity)
+    b = math.floor((state['light_blue']/intensity_max)*intensity)
+    return (r,g,b)
 
-    i = 5 * intensity
-    return (i,i,i)
