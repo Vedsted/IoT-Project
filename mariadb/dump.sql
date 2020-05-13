@@ -15,7 +15,7 @@ create table `Groups`
         primary key,
     controller_id varchar(255) null,
     constraint Groups_Controllers_id_fk
-        foreign key (id) references Controllers (id)
+        foreign key (controller_id) references Controllers (id)
             on update cascade on delete cascade
 );
 
@@ -39,7 +39,7 @@ create table Measurements
 
 
 DROP USER IF EXISTS user;
-CREATE USER '<USER>'@'%' IDENTIFIED BY '<PASSWORD>';
-GRANT USAGE ON *.* TO '<USER>'@'%' IDENTIFIED BY '<PASSWORD>';
-GRANT ALL privileges ON FilipsBlue.* TO '<USER>'@'%';
+CREATE USER 'filip'@'%' IDENTIFIED BY 'Chcla15Jonso16';
+GRANT USAGE ON *.* TO 'filip'@'%' IDENTIFIED BY 'Chcla15Jonso16';
+GRANT ALL privileges ON FilipsBlue.* TO 'filip'@'%';
 FLUSH PRIVILEGES;
