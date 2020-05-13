@@ -5,12 +5,8 @@ import _thread
 from light_source import set_LED_rgb
 from ambient_sensor import AmbientSensor
 from network import Bluetooth
+from config import settings
 
-# Code from:
-# https://forum.pycom.io/topic/3522/is-it-possible-to-use-lopy-as-ble-gatt_server-and-gatt_client-at-the-same-time
-
-deviceid = "LoPyServerchcla"
-my_service_uuid = b'1111222233334444' # can be converted to the uuid equivalent with: uuid.UUID(bytes=b'1111222233334444')
 isConnected = False
 
 ################ BLE node        ################
@@ -18,7 +14,7 @@ isConnected = False
 #################################################
 def BLEServer():
     bluetooth = Bluetooth() #create a bluetooth object
-    bluetooth.set_advertisement(name=deviceid, service_uuid=my_service_uuid)  
+    bluetooth.set_advertisement(name=settings['deviceid'], service_uuid=settings['filipsblue_service'])  
 
     #using callback conn_cb to check client's connection
     ##Function:   conn_cb(callback for bluetooth object events checking)
@@ -45,10 +41,10 @@ def BLEServer():
     ###########################
     # BLE Ambient Sensor Service
     ###########################
-    ambient_sensor_service = bluetooth.service(uuid=b'2222222222222220', isprimary=True, nbr_chars=2) # nbr_chars indicates the number of characteristics of this service
+    ambient_sensor_service = bluetooth.service(uuid=settings['ambient_sensor_service'], isprimary=True, nbr_chars=2) # nbr_chars indicates the number of characteristics of this service
     #set up service characteristic
-    ambient_sensor_chr = ambient_sensor_service.characteristic(uuid=b'2222222222222221', properties=Bluetooth.PROP_NOTIFY, value='NA')
-    ambient_sensor_sample_rate_chr = ambient_sensor_service.characteristic(uuid=b'2222222222222222', properties=Bluetooth.PROP_WRITE, value='NA')
+    ambient_sensor_chr = ambient_sensor_service.characteristic(uuid=settings['ambient_sensor_chr'], properties=Bluetooth.PROP_NOTIFY, value='NA')
+    ambient_sensor_sample_rate_chr = ambient_sensor_service.characteristic(uuid=settings['ambient_sensor_sample_rate_chr'], properties=Bluetooth.PROP_WRITE, value='NA')
 
     def ambient_sensor_sample_rate_cb_handler(chr):
         events = chr.events()
@@ -88,9 +84,9 @@ def BLEServer():
     ###########################
     # BLE Light Source Service
     ###########################
-    light_source_service = bluetooth.service(uuid=b'3333333333333330', isprimary=True)
+    light_source_service = bluetooth.service(uuid=settings['light_source_service'], isprimary=True)
     #set up service characteristic
-    light_source_chr = light_source_service.characteristic(uuid=b'3333333333333331', properties=Bluetooth.PROP_WRITE, value='(255,255,255)')
+    light_source_chr = light_source_service.characteristic(uuid=settings['light_source_chr'], properties=Bluetooth.PROP_WRITE, value='\xff\xff\xff')
 
     def light_source_chr_cb_handler(chr):
         events = chr.events()

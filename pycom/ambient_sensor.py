@@ -1,4 +1,5 @@
 import time
+from config import settings_ambient_sensor
 from LTR329ALS01 import LTR329ALS01 # Ambient Light Sensor
 
 class AmbientSensor:
@@ -6,14 +7,14 @@ class AmbientSensor:
     # Constructor
     def __init__(self, threshold, callback_on_emit):
         # Initialize the sensor
-        integration_time = LTR329ALS01.ALS_INT_100
-        measurement_rate = LTR329ALS01.ALS_RATE_500 
-        gain = LTR329ALS01.ALS_GAIN_1X
+        integration_time = settings_ambient_sensor['integration_time']
+        measurement_rate = settings_ambient_sensor['measurement_rate']
+        gain = settings_ambient_sensor['gain']
         self.__lightsensor = LTR329ALS01(integration=integration_time, rate=measurement_rate, gain=gain)
         self.__is_sampling = False
 
         # Set default sample rate
-        self.__sample_rate = 1
+        self.__sample_rate = settings_ambient_sensor['sample_rate']
 
         # Threshold for when a sample should be emitted
         self.__threshold = threshold
