@@ -27,7 +27,6 @@ def connect_to_db():
 # callback when messages are received from the broker
 def on_message(client, userdata, message):
   msg = json.loads(message.payload.decode("utf-8"))
-
   # Lines below can be included in recieved messages should be shown
   # print("\nmessage received from "+msg['controller']+"!")
   # print("topic= ",message.topic)
@@ -42,8 +41,8 @@ def on_message(client, userdata, message):
   query = "insert ignore into `Groups` (id, controller_id) VALUES (%s, %s);"
   cursor.execute(query, (group, controller))
   # Insert message
-  query = "insert into Measurements (group_id, timestamp, lux1, lux2, setpoint, light_red, light_green, light_blue) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"
-  cursor.execute(query, (group, msg['timestamp'], msg['lux1'], msg['lux2'], msg['setpoint'], msg['light_red'], msg['light_green'], msg['light_blue']))
+  query = "insert into Measurements (group_id, timestamp, lux1, lux2, setpoint, light_red, light_green, light_blue, message_count) VALUES (%s, %i, %i, %i, %i, %i, %i, %i, %i);"
+  cursor.execute(query, (group, msg['timestamp'], msg['lux1'], msg['lux2'], msg['setpoint'], msg['light_red'], msg['light_green'], msg['light_blue'], msg['message_count']))
   # Commit the changes
   db.commit()
 
@@ -75,6 +74,6 @@ db = connect_to_db()
 cursor = db.cursor()
 broker = connect_to_broker()
 
+print('Storage system ready!')
 while True:
-  print('Storage system ready!')
-  time.sleep(60)
+  time.sleep(30)
