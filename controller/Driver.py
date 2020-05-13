@@ -71,16 +71,16 @@ def on_msg(client, userdata, msg):
     payload = json.loads(msg.payload)
 
     if msg.topic == base_mqtt_topic+'setpoint':
-        setpoint = payload['setpoint']
+        setpoint = int(payload['setpoint'])
         current_state['setpoint'] = setpoint
     elif msg.topic == base_mqtt_topic+'rgb':
-        current_state['ref_red'] = payload['red']
-        current_state['ref_green'] = payload['green']
-        current_state['ref_blue'] = payload['blue']
+        current_state['ref_red'] = int(payload['red'])
+        current_state['ref_green'] = int(payload['green'])
+        current_state['ref_blue'] = int(payload['blue'])
         new_rgb = util.map_intensity_to_rgb(current_state)
         f.adjust_light_source(new_rgb)
     elif msg.topic == base_mqtt_topic+'setpoint_error':
-        current_state['setpoint_error'] = payload['setpoint_error']
+        current_state['setpoint_error'] = int(payload['setpoint_error'])
 
     print("on_msg() -> Updated current state: {}".format(payload))
 

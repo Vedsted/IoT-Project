@@ -4,7 +4,7 @@
 settings = {
     'ambient_sensor_ble_mac': '30:AE:A4:50:5D:2A',
 
-    'broker_address': 'localhost',
+    'broker_address': '178.62.226.29',
     'broker_port': 1883,
     'broker_keep_alive': 60, # seconds
 
