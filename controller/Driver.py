@@ -92,7 +92,7 @@ def subscribe(topic):
 def mqtt_subscribe_thread(host, port, keep_alive):
     # connect to broker
     client = mqtt.Client()
-    client.on_connect = subscribe(base_mqtt_topic + '+') # (+) is wildcard
+    client.on_connect = subscribe([base_mqtt_topic + 'rgb', base_mqtt_topic + 'setpoint'])
     client.on_message = on_msg
     client.connect(host, port, keep_alive)
     client.loop_forever()
