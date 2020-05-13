@@ -51,6 +51,7 @@ def mqtt_publish(host, port, keep_alive, topic):
         u"lux1": current_state['lux'][0],
         u"lux2": current_state['lux'][1],
         u"setpoint": current_state['setpoint'],
+        u"setpoint_error": current_state['setpoint_error'],
         u"light_red": current_state['light_red'],
         u"light_green": current_state['light_green'],
         u"light_blue": current_state['light_blue']
