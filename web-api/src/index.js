@@ -84,6 +84,46 @@ app.post('/api/setsetpoint', function (req, res) {
 });
 
 /**
+ * Set RGB method for remote controlling light harvesting remotely
+ */
+app.post('/api/setrgb', function (req, res) {
+    console.log('Incomming requset on: \'/api/rgb\' for controller: ' + req.body.controller)
+
+    let controller = req.body.controller;
+    let group = req.body.group;
+    let red = req.body.red;
+    let green = req.body.green;
+    let blue = req.body.blue;
+
+    let o = {controller: controller,group: group,red: red, green: green, blue: blue};
+
+    let topic = 'remote/' + controller + '/' + group + '/rgb';
+    client.publish(topic, JSON.stringify(o))
+
+    let msgSetpoint = {msg: 'New RGB sent successfully!'};
+    res.send(JSON.stringify(msgSetpoint));
+});
+
+/**
+ * Set setpoint_error method for remote controlling light harvesting remotely
+ */
+app.post('/api/setsetpoint_error', function (req, res) {
+    console.log('Incomming requset on: \'/api/setpoint_error\' for controller: ' + req.body.controller)
+
+    let controller = req.body.controller;
+    let group = req.body.group;
+    let setpoint_error = req.body.setpoint_error;
+
+    let o = {controller: controller,group: group,setpoint_error: setpoint_error};
+
+    let topic = 'remote/' + controller + '/' + group + '/setpoint_error';
+    client.publish(topic, JSON.stringify(o))
+
+    let msgSetpoint = {msg: 'New setpoint error sent successfully!'};
+    res.send(JSON.stringify(msgSetpoint));
+});
+
+/**
  * Retrieve data from a group in a given time period
  */
 app.post('/api/data', function (req, res) {

@@ -17,8 +17,8 @@ document.getElementById('btnSetpoint').addEventListener('click', event => {
     var grp = document.getElementById('inpGroup').value;
     var sp = document.getElementById('inpSetpoint').value;
 
-    if(!ctl || !sp){
-        document.getElementById('msg').innerText = 'Controller and setpoint must be set!'
+    if(!ctl || !grp){
+        document.getElementById('msg').innerText = 'Controller and group must be set!'
         return;
     }
 
@@ -32,6 +32,49 @@ document.getElementById('btnSetpoint').addEventListener('click', event => {
     .then(data => document.getElementById('msg').innerText = data.msg); 
 })
 
+document.getElementById('btnSetpointError').addEventListener('click', event => {
+    var ctl = document.getElementById('inpController').value;
+    var grp = document.getElementById('inpGroup').value;
+    var se = document.getElementById('inpSetpointError').value;
+
+    if(!ctl || !grp){
+        document.getElementById('msg').innerText = 'Controller and group must be set!'
+        return;
+    }
+
+    body = {controller: ctl, group: grp, setpoint_error: se};
+    
+    fetch(server+'api/setsetpoint_error', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    }).then(response => response.json())
+    .then(data => document.getElementById('msg').innerText = data.msg); 
+})
+
+document.getElementById('btnRGB').addEventListener('click', event => {
+    var ctl = document.getElementById('inpController').value;
+    var grp = document.getElementById('inpGroup').value;
+    var red = document.getElementById('inpRed').value;
+    var green = document.getElementById('inpGreen').value;
+    var blue = document.getElementById('inpBlue').value;
+
+    if(!ctl || !grp){
+        document.getElementById('msg').innerText = 'Controller and group must be set!'
+        return;
+    }
+
+    body = {controller: ctl, group: grp, red: red, green: green, blue: blue};
+    
+    fetch(server+'api/setrgb', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    }).then(response => response.json())
+    .then(data => document.getElementById('msg').innerText = data.msg); 
+})
+
+
 document.getElementById('btnPlot').addEventListener('click', event => {
 
     var inpStart = document.getElementById('inpStart');
@@ -39,8 +82,10 @@ document.getElementById('btnPlot').addEventListener('click', event => {
     var ctl = document.getElementById('inpController').value;
     var grp = document.getElementById('inpGroup').value;
 
-    var start = new Date(inpStart.value).getTime() / 1000;
-    var end = new Date(inpEnd.value).getTime() / 1000;
+    var start = new Date(inpStart.value).getTime()*1000000;
+    console.log('Start: ' + start)
+    var end = new Date(inpEnd.value).getTime()*1000000;
+    console.log('End: ' + end)
 
     body = {
         controller: ctl,
@@ -60,60 +105,33 @@ document.getElementById('btnPlot').addEventListener('click', event => {
         let lux1 = data.map(e => e.lux1);
         let lux2 = data.map(e => e.lux2);
         let setpoints = data.map(e => e.setpoint);
+        data.forEach(e => e.timestamp = Math.floor(e.timestamp/1000000))
+        console.log(data);
+        
 
         document.getElementById('msg').innerText = "Data received from server.\nNumber of data points: " + labels.length
 
-        var myChart = new Chart(ctx, {
-            type: 'line',
+        let vlPlot = {
+            $schema: "https://vega.github.io/schema/vega-lite/v4.json",
+            description: "Light level and setpoint over time.",
             data: {
-                labels: labels,
-                datasets: [
-                    {
-                        data: lux1,
-                        label: 'Lux 1',
-                        borderColor: 'rgb(255, 99, 132)',
-                        fill: false
-                    },
-                    {
-                        data: lux2,
-                        label: 'Lux 2',
-                        borderColor: 'rgb(51, 255, 87)',
-                        fill: false
-                    },
-                    {
-                        data: setpoints,
-                        label: 'Setpoint',
-                        borderColor: 'rgb(50, 50, 50)',
-                        fill: false,
-                        borderDash: [10,5]
+                values: data,
+                format: {
+                    parse: {
+                        timestamp: "number"
                     }
-                ]
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                title: {
-                  display: true,
-                  text: 'Daylight Harvesting'
-                },
-                scales: {
-					xAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: 'Time'
-						}
-					}],
-					yAxes: [{
-						display: true,
-						scaleLabel: {
-							display: true,
-							labelString: 'Lux'
-						}
-					}]
-				}
+            //"transform": [{"filter": "datum.symbol==='GOOG'"}],
+            mark: "line",
+            encoding: {
+              x: {field: "timestamp", type: "temporal"},
+              y: {field: "lux1", type: "quantitative"}
             }
-        });
+        }
+
+
+        vegaEmbed('#plot', vlPlot);
         
     });
 })

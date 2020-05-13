@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Light Manager</title>
+
+    <style>
+        #msg {
+            color: red;
+        }
+
+        #plot {
+            width: 500px;
+            height: 500px;
+        }
+        
+    </style>
 </head>
 <body>
     <h1>IoT Light Manager</h1>
@@ -22,6 +34,18 @@
         <input type="text" id="inpSetpoint" placeholder="500"/>
         <button id="btnSetpoint">Enter</button>
     </div>
+    <h3>Set Setpoint Error:</h3>
+    <div>
+        <input type="text" id="inpSetpointError" placeholder="5"/>
+        <button id="btnSetpointError">Enter</button>
+    </div>
+    <h3>Set RGB:</h3>
+    <div>
+        <input type="number" min="0" max="255" id="inpRed" placeholder="Red"/>
+        <input type="number" min="0" max="255" id="inpGreen" placeholder="Green"/>
+        <input type="number" min="0" max="255" id="inpBlue" placeholder="Blue"/>
+        <button id="btnRGB">Enter</button>
+    </div>
     <div>
         <h3>Data Vizualisation:</h3>
         <div>
@@ -34,27 +58,15 @@
         </div>
         <button id="btnPlot">Create</button>
     </div>
-    <div>
-        <canvas id="myChart" width="0" height="0"></canvas>
-    </div>
+    <div id="plot" />
 
     <!-- Lib for creating plots -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-    <!--
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css">
-    -->
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.11.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.12.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.7.1"></script>
 
     <!-- js files -->
     <script src="./public/index.js"></script>
 
-    <style>
-        #msg {
-            color: red;
-        }
-        canvas {
-            width: 1vw;
-            height: 400px;
-        }
-    </style>
 </body>
 </html>
