@@ -11,12 +11,16 @@ from config import settings
 ############################
 # Current state
 ############################
+initial_rgb = (settings['light_red'], settings['light_green'], settings['light_blue'])
 current_state = {
     'lux': (float('-inf'), float('-inf')),
     'setpoint': 50,
-    'light_red': 255,
-    'light_green': 255,
-    'light_blue': 255,
+    'light_red': initial_rgb[0],
+    'light_green': initial_rgb[1],
+    'light_blue': initial_rgb[2],
+    'ref_red': initial_rgb[0], # ref values are for adjusting intensity accordingly to the color 
+    'ref_green': initial_rgb[1],
+    'ref_blue': initial_rgb[2],
     'intensity': 0
 }
 
@@ -69,9 +73,9 @@ def on_msg(client, userdata, msg):
         setpoint = payload['setpoint']
         current_state['setpoint'] = setpoint
     elif msg.topic == base_mqtt_topic+'rgb':
-        current_state['light_red'] = payload['red']
-        current_state['light_green'] = payload['green']
-        current_state['light_blue'] = payload['blue']
+        current_state['ref_red'] = payload['red']
+        current_state['ref_green'] = payload['green']
+        current_state['ref_blue'] = payload['blue']
         new_rgb = util.map_intensity_to_rgb(current_state)
         f.adjust_light_source(new_rgb)
 
