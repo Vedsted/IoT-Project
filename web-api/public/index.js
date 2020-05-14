@@ -55,16 +55,18 @@ document.getElementById('btnSetpointError').addEventListener('click', event => {
 document.getElementById('btnRGB').addEventListener('click', event => {
     var ctl = document.getElementById('inpController').value;
     var grp = document.getElementById('inpGroup').value;
-    var red = document.getElementById('inpRed').value;
-    var green = document.getElementById('inpGreen').value;
-    var blue = document.getElementById('inpBlue').value;
+    var color = document.getElementById('inpColor').value;
 
     if(!ctl || !grp){
         document.getElementById('msg').innerText = 'Controller and group must be set!'
         return;
     }
 
-    body = {controller: ctl, group: grp, red: red, green: green, blue: blue};
+    // clean up hex color string and parse to ints -> [r,g,b]
+    color = color.match(/[A-Za-z0-9]{2}/g);
+    color = color.map(i => parseInt(i, 16));
+    
+    body = {controller: ctl, group: grp, red: color[0], green: color[1], blue: color[2]};
     
     fetch(server+'api/setrgb', {
         method: 'POST',
