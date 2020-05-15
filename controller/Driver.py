@@ -14,6 +14,7 @@ from config import settings
 initial_rgb = (settings['light_red'], settings['light_green'], settings['light_blue'])
 current_state = {
     'lux': settings['lux'],
+    'lux_formula_value': settings['lux'],
     'setpoint': settings['setpoint'],
     'setpoint_error': settings['setpoint_error'],
     'light_red': initial_rgb[0],
@@ -50,6 +51,7 @@ def mqtt_publish(host, port, keep_alive, topic):
         u"timestamp": timestamp,
         u"lux1": current_state['lux'][0],
         u"lux2": current_state['lux'][1],
+        u"lux_formula_value": current_state['lux_formula_value'],
         u"setpoint": current_state['setpoint'],
         u"setpoint_error": current_state['setpoint_error'],
         u"light_red": current_state['light_red'],
@@ -161,6 +163,7 @@ def block():
 
 def adjust_light_source():
     lux = util.lux(current_state['lux'])
+    current_state['lux_formula_value'] = lux
     difference = lux - current_state['setpoint']
 
     new_rgb = None
