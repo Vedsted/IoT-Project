@@ -44,22 +44,22 @@ def BLEServer():
     ambient_sensor_service = bluetooth.service(uuid=settings['ambient_sensor_service'], isprimary=True, nbr_chars=2) # nbr_chars indicates the number of characteristics of this service
     #set up service characteristic
     ambient_sensor_chr = ambient_sensor_service.characteristic(uuid=settings['ambient_sensor_chr'], properties=Bluetooth.PROP_NOTIFY, value='NA')
-    ambient_sensor_sample_rate_chr = ambient_sensor_service.characteristic(uuid=settings['ambient_sensor_sample_rate_chr'], properties=Bluetooth.PROP_WRITE, value='NA')
+    ambient_sensor_sample_interval_chr = ambient_sensor_service.characteristic(uuid=settings['ambient_sensor_sample_interval_chr'], properties=Bluetooth.PROP_WRITE, value='NA')
 
-    def ambient_sensor_sample_rate_cb_handler(chr):
+    def ambient_sensor_sample_interval_cb_handler(chr):
         events = chr.events()
         if  events & Bluetooth.CHAR_WRITE_EVENT:
-            print("ambient_sensor_sample_rate_cb_handler : Raw value: {}".format(chr.value()))
+            print("ambient_sensor_sample_interval_cb_handler : Raw value: {}".format(chr.value()))
 
             try:
-                sample_rate = float(chr.value())
-                ambient_sensor.set_sample_rate(sample_rate)
-                print("Updated ambient sampling rate: {}".format(sample_rate))
+                sample_interval = float(chr.value())
+                ambient_sensor.set_sample_interval(sample_interval)
+                print("Updated ambient sampling rate: {}".format(sample_interval))
             except:
-                print("ambient_sensor_sample_rate_cb_handler : Invalid value. Expected type float.")
+                print("ambient_sensor_sample_interval_cb_handler : Invalid value. Expected type float.")
                 pass
             
-    ambient_sensor_sample_rate_chr.callback(trigger=Bluetooth.CHAR_WRITE_EVENT, handler=ambient_sensor_sample_rate_cb_handler)
+    ambient_sensor_sample_interval_chr.callback(trigger=Bluetooth.CHAR_WRITE_EVENT, handler=ambient_sensor_sample_interval_cb_handler)
 
     ambient_sensor_service.start()
 
@@ -77,8 +77,7 @@ def BLEServer():
                 # Disconnect bluetooth communication.
                 bluetooth.disconnect_client()
 
-    threshold = 2 # The threshold of when the ambient sensor should emit new lux values
-    ambient_sensor = AmbientSensor(threshold=threshold, callback_on_emit=ble_ambient_sensor_callback)
+    ambient_sensor = AmbientSensor(callback_on_emit=ble_ambient_sensor_callback)
     _thread.start_new_thread(ambient_sensor.start_sampling, ()) # Start sampling the ambient sensor
 
     ###########################

@@ -5,7 +5,7 @@ from LTR329ALS01 import LTR329ALS01 # Ambient Light Sensor
 class AmbientSensor:
 
     # Constructor
-    def __init__(self, threshold, callback_on_emit):
+    def __init__(self, callback_on_emit):
         # Initialize the sensor
         integration_time = settings_ambient_sensor['integration_time']
         measurement_rate = settings_ambient_sensor['measurement_rate']
@@ -13,18 +13,15 @@ class AmbientSensor:
         self.__lightsensor = LTR329ALS01(integration=integration_time, rate=measurement_rate, gain=gain)
         self.__is_sampling = False
 
-        # Set default sample rate
-        self.__sample_rate = settings_ambient_sensor['sample_rate']
-
-        # Threshold for when a sample should be emitted
-        self.__threshold = threshold
+        # Set default sample interval
+        self.__sample_interval = settings_ambient_sensor['sample_interval']
 
         # Callback that should receive the sample
         self.__cb_on_emit = callback_on_emit
 
-    def set_sample_rate(self, sample_rate):
-        if sample_rate > 0: # Don't be mean
-            self.__sample_rate = sample_rate
+    def set_sample_interval(self, sample_interval):
+        if sample_interval > 0: # Don't be mean
+            self.__sample_interval = sample_interval
 
     def start_sampling(self):
         if self.__is_sampling == False: # Are we sampling already?
@@ -40,7 +37,7 @@ class AmbientSensor:
                 lastSample = currentSample
                 self.__emit(lastSample)
                 
-                time.sleep(self.__sample_rate)
+                time.sleep(self.__sample_interval)
 
     def stop_sampling(self):
         self.__is_sampling = False
