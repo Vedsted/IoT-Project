@@ -44,6 +44,6 @@ settings = {
 
     # These settings must match up with the settings on the ambient sensor,
     # in order to calculate the lux value.
-    'ALS_INT_VALUE' : ALS_INT_VALUES[1],
-    'ALS_GAIN_VALUE' : ALS_GAIN_VALUES[0]
+    'ALS_INT_VALUE' : ALS_INT_VALUES['ALS_INT_100'],
+    'ALS_GAIN_VALUE' : ALS_GAIN_VALUES['ALS_GAIN_1X']
 }
