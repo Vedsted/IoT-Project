@@ -131,7 +131,13 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
 
             # publish current state through MQTT
             topic = base_mqtt_topic + 'data'
-            mqtt_publish(settings['broker_address'], settings['broker_port'], settings['broker_keep_alive'], topic)
+            try:
+                mqtt_publish(settings['broker_address'], settings['broker_port'], settings['broker_keep_alive'], topic)
+            except:
+                # Accept that we might get an error.
+                # A few lost messages are not critical.
+                # Do not try to send the same message again.
+                print("An error occured while trying to publish to MQTT broker.")
 
             adjust_light_source()
 
