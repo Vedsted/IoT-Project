@@ -129,6 +129,8 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
             lux = tuple(map(int, decoded_data.replace('(', '').replace(')', '').split(', '))) # cast from string '(int, int)' -> tuple 
             current_state['lux'] = lux
 
+            adjust_light_source()
+
             # publish current state through MQTT
             topic = base_mqtt_topic + 'data'
             try:
@@ -139,7 +141,6 @@ class AmbientSensorNotificationHandler(DefaultDelegate):
                 # Do not try to send the same message again.
                 print("An error occured while trying to publish to MQTT broker.")
 
-            adjust_light_source()
 
 f = BLEController(AmbientSensorNotificationHandler(params=None))
 f.connect(settings['ambient_sensor_ble_mac']) # Establish the connection to the ambient sensor
@@ -159,14 +160,10 @@ def block():
 
 
 def adjust_light_source():
-    # TODO: Find a better way to adjust light source
-    lux_avg = (current_state['lux'][0] + current_state['lux'][1])/2
-    difference = lux_avg - current_state['setpoint']
-    current_rgb = (current_state['light_red'], current_state['light_green'], current_state['light_blue'])
+    lux = util.lux(current_state['lux'])
+    difference = lux - current_state['setpoint']
 
     new_rgb = None
-
-    
 
     if difference > current_state['setpoint_error']:
         # Adjust down
@@ -175,7 +172,6 @@ def adjust_light_source():
             current_state['intensity'] = current_state['intensity'] -1
             new_rgb = util.map_intensity_to_rgb(current_state)
             f.adjust_light_source(new_rgb)
-        
         
     elif difference < current_state['setpoint_error']:
         # Adjust up

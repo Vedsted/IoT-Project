@@ -30,3 +30,20 @@ def increment_mqtt_message_send_count():
     myfile.write(str(new_counter))
     myfile.close()
     return new_counter
+
+def lux(light_level):
+    # This formula was found on github.
+    # Apparently it should be found in Appendix A of the specification of the Ambient sensor.
+    # Ambient sensor model: LTR-329ALS-01
+    # Link to spec: https://optoelectronics.liteon.com/upload/download/DS86-2014-0006/LTR-329ALS-01_DS_V1.pdf
+    # Link to github: https://github.com/pycom/pycom-libraries/issues/97
+    # Link to github commit with formula: https://github.com/mcqn/pycom-libraries/commit/3faed579996044865ab9ea84625852782d5cad97 
+     ratio = light_level[1]/(light_level[0]+light_level[1])
+     if ratio < 0.45:
+         return (1.7743 * light_level[0] + 1.1059 * light_level[1]) / settings['ALS_GAIN_VALUE'] / settings['ALS_INT_VALUE']
+     elif ratio < 0.64 and ratio >= 0.45:
+         return (4.2785 * light_level[0] - 1.9548 * light_level[1]) / settings['ALS_GAIN_VALUE'] / settings['ALS_INT_VALUE']
+     elif ratio < 0.85 and ratio >= 0.64:
+         return (0.5926 * light_level[0] + 0.1185 * light_level[1]) / settings['ALS_GAIN_VALUE'] / settings['ALS_INT_VALUE']
+     else:
+         return 0
