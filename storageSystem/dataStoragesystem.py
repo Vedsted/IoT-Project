@@ -31,6 +31,8 @@ def on_message(client, userdata, message):
   # print("\nmessage received from "+msg['controller']+"!")
   # print("topic= ",message.topic)
 
+  print(msg)
+
   controller = msg['controller']
   group = msg['group']
 
@@ -41,7 +43,7 @@ def on_message(client, userdata, message):
   query = "insert ignore into `Groups` (id, controller_id) VALUES (%s, %s);"
   cursor.execute(query, (group, controller))
   # Insert message
-  query = "insert into Measurements (group_id, timestamp, lux1, lux2, setpoint, light_red, light_green, light_blue, message_count) VALUES (%s, %i, %i, %i, %i, %i, %i, %i, %i);"
+  query = "insert into Measurements (group_id, timestamp, lux1, lux2, setpoint, light_red, light_green, light_blue, message_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
   cursor.execute(query, (group, msg['timestamp'], msg['lux1'], msg['lux2'], msg['setpoint'], msg['light_red'], msg['light_green'], msg['light_blue'], msg['message_count']))
   # Commit the changes
   db.commit()

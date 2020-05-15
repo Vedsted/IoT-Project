@@ -41,20 +41,23 @@
     </div>
     <h3>Set RGB:</h3>
     <div>
-        <input type="number" min="0" max="255" id="inpRed" placeholder="Red"/>
-        <input type="number" min="0" max="255" id="inpGreen" placeholder="Green"/>
-        <input type="number" min="0" max="255" id="inpBlue" placeholder="Blue"/>
+        <!--
+            <input type="number" min="0" max="255" id="inpRed" placeholder="Red"/>
+            <input type="number" min="0" max="255" id="inpGreen" placeholder="Green"/>
+            <input type="number" min="0" max="255" id="inpBlue" placeholder="Blue"/>
+        -->
+        <input type="color" id="inpColor" />
         <button id="btnRGB">Enter</button>
     </div>
     <div>
         <h3>Data Vizualisation:</h3>
         <div>
             <p>From:</p>
-            <input type="date" id="inpStart" value="2020-05-07">
+            <input type="date" id="inpStart">
         </div>
         <div>
             <p>To:</p>
-            <input type="date" id="inpEnd" value="2020-05-07">
+            <input type="date" id="inpEnd">
         </div>
         <button id="btnPlot">Create</button>
     </div>
