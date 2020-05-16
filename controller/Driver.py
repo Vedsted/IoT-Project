@@ -176,7 +176,7 @@ def adjust_light_source():
             new_rgb = util.map_intensity_to_rgb(current_state)
             f.adjust_light_source(new_rgb)
         
-    elif difference < current_state['setpoint_error']:
+    elif difference < (current_state['setpoint_error'] * -1):
         # Adjust up
         #new_rgb = util.get_rgb_values(current_rgb, 105)
         if current_state['intensity'] < settings['intensity_max']:
@@ -184,7 +184,7 @@ def adjust_light_source():
             new_rgb = util.map_intensity_to_rgb(current_state)
             f.adjust_light_source(new_rgb)
     else:
-        # Don't adjust
+        # Don't adjust since the difference is contained in the interval [-setpoint_error, setpoint_error]
         pass
 
     # Update state of the light source
