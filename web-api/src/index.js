@@ -134,7 +134,7 @@ app.post('/api/data', function (req, res) {
     let end = req.body.end;
 
     connectToDB(); // connection times out. new connection is created when needed.
-    let sql = 'SELECT timestamp, lux1, lux2, setpoint FROM Measurements WHERE group_id = ? AND timestamp > ? AND timestamp < ?;'
+    let sql = 'SELECT timestamp, lux_formula_value, setpoint, light_red FROM Measurements WHERE group_id = ? AND timestamp > ? AND timestamp < ?;'
     let values = [group, start, end]
     con.query(sql, values, function (err, result) {
         if (err) throw err;

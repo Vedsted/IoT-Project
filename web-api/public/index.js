@@ -78,6 +78,7 @@ document.getElementById('btnRGB').addEventListener('click', event => {
 
 
 document.getElementById('btnPlot').addEventListener('click', event => {
+    document.getElementById('btnPlot').disabled = true
 
     var inpStart = document.getElementById('inpStart');
     var inpEnd = document.getElementById('inpEnd');
@@ -85,9 +86,7 @@ document.getElementById('btnPlot').addEventListener('click', event => {
     var grp = document.getElementById('inpGroup').value;
 
     var start = new Date(inpStart.value).getTime()*1000000;
-    console.log('Start: ' + start)
     var end = new Date(inpEnd.value).getTime()*1000000;
-    console.log('End: ' + end)
 
     body = {
         controller: ctl,
@@ -102,38 +101,59 @@ document.getElementById('btnPlot').addEventListener('click', event => {
         body: JSON.stringify(body)
     }).then(response => response.json())
     .then(data => {
-        
-        let labels = data.map(e => e.timestamp);
-        let lux1 = data.map(e => e.lux1);
-        let lux2 = data.map(e => e.lux2);
-        let setpoints = data.map(e => e.setpoint);
-        data.forEach(e => e.timestamp = Math.floor(e.timestamp/1000000))
-        console.log(data);
-        
+    
+        // data = [{timestamp, lux_formula_value, setpoint, light_red},....]
 
-        document.getElementById('msg').innerText = "Data received from server.\nNumber of data points: " + labels.length
+        plotData = data.map(e => { 
+            return {
+                timestamp : parseInt(e.timestamp) / 1000000,
+                intensity : e.light_red,
+                luxError : (e.lux_formula_value - e.setpoint)
+            };
+        })
+
+        document.getElementById('msg').innerText = "Data received from server.\nNumber of data points: " + data.length
 
         let vlPlot = {
             $schema: "https://vega.github.io/schema/vega-lite/v4.json",
             description: "Light level and setpoint over time.",
+            width: 400,
+            height: 400,
             data: {
-                values: data,
-                format: {
-                    parse: {
-                        timestamp: "number"
-                    }
-                }
+                values: plotData,
             },
-            //"transform": [{"filter": "datum.symbol==='GOOG'"}],
             mark: "line",
+            layer: [
+                {
+                  mark: {type: "line", color: "#85C5A6"},
+                  encoding: {
+                    y: {
+                      field: "luxError",
+                      type: "quantitative",
+                      axis: {title: "Lux Level", titleColor: "#85C5A6"}
+                    }
+                  }
+                },
+                {
+                  mark: {color: "#FF1010", type: "line"},
+                  encoding: {
+                    y: {
+                      field: "intensity",
+                      type: "quantitative",
+                      axis: {title: "Intensity", titleColor:"#FF1010", scale: {domain: [0, 255]}}
+                    }
+                  }
+                }
+              ],
             encoding: {
               x: {field: "timestamp", type: "temporal"},
-              y: {field: "lux1", type: "quantitative"}
-            }
+            },
+            resolve: {scale: {y: "independent"}}
+            
         }
 
 
         vegaEmbed('#plot', vlPlot);
-        
+        document.getElementById('btnPlot').disabled = false
     });
 })
