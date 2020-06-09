@@ -102,6 +102,13 @@ document.getElementById('btnPlot').addEventListener('click', event => {
     }).then(response => response.json())
     .then(data => {
     
+        document.getElementById('msg').innerText = "Data received from server.\nNumber of data points: " + data.length
+
+        if (data.length == 0) {
+            document.getElementById('btnPlot').disabled = false
+            return
+        }
+
         // data = [{timestamp, lux_formula_value, setpoint, light_red},....]
 
         plotData = data.map(e => { 
@@ -112,7 +119,7 @@ document.getElementById('btnPlot').addEventListener('click', event => {
             };
         })
 
-        document.getElementById('msg').innerText = "Data received from server.\nNumber of data points: " + data.length
+        
 
         let vlPlot = {
             $schema: "https://vega.github.io/schema/vega-lite/v4.json",
